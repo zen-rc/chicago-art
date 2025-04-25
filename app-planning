@@ -8,6 +8,14 @@ return image title
 
 construct image URL
 --create variables for base url, image id, and iiff
+--convert use states into variables, and console log URL
+--find out why the code is rendering 5 times.
+(the continous fetches are messing with my api access)
 --return image on browser
 
+-useEffect to prevent the code form automatically rendering continously.
+-- find another endpoint to use
+-- see if there is anything I can do to make the artwork depicted more accurate to the search word. 
+-- use Flexbox to improve app structure
+-- do some CSS to make it pretty :)
 
