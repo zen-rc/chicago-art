@@ -19,3 +19,38 @@ construct image URL
 -- use Flexbox to improve app structure
 -- do some CSS to make it pretty :)
 
+-- create an artist endpoint
+
+
+
+
+
+
+----New Quest----
+Question: 
+Why is the button not working on the first render? Why do I have to click it twice in order for it to give me back a picture?
+
+Answer:
+The image_Id does not exist by the time line 75 runs, which fetches the image. 
+
+The first time line 65 runs, it does not return the specific artwork requested, but an object that contains an array of more artwork, with different titles than the title originally fetched. 
+
+On the second render, for some reason the object returned is the specific  was looking for
+
+The reason is, the api is running without the artwork id present, so it fetches an array of art, not the specific work saved in the id useState.
+
+In order to fix this, a useEffect is needed to watch the state of image and artwork ids. When the state is changed, it should fetch the data with the image. This way, the ids are not just saved, but used for returning the image to the browser.
+
+However, I cannot execute a useEffect inside of my handleClick function, so I need to set the button inside of handleClick, and make image_id and artwork a dependency OUTSIDE of the handleClick function. This way the useEffect and function both execute, without complicating my code.
+
+
+---had to fix useEffect using chat, since I couldn't figure out what as wrong
+
+
+--make a button that reroutes to another page
+-- useState for artist
+--If artist does not exist, alert "please search for artwork"
+-- artist exist? using artists, fetch artists data
+-- return a display of artists info. 
+--
+

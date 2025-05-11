@@ -1,141 +1,135 @@
 import './App.css';
-import { useState, useEffect } from 'react'
-
-// add use effects to ensure that code is only rendering once or twice, instead of continuously
-// NEVER let input be a dependencies
-// edit search 1 and search 2 to be keywords for search queries
-// i need to make it so the code is rendering only After a button is clicked, and a new image is fetched.
-
-
-
-
-// 
+import { useState, useEffect } from 'react';
 
 function App() {
+  const [input, setInput] = useState("");
+  const [iiif, setIiif] = useState("");
+  const [artworkId, setArtworkId] = useState("");
+  const [imageId, setImageId] = useState("");
+  const [title, setTitle] = useState("");
 
-  // doing api search through the input: 
-  const [input, setInput] = useState("")
-  // const [button, setButton] = useState(false)
-  const [iiif, setIiif] = useState("")
-  const [artwork_Id, setArtwork_Id] = useState("")
-  const [image_Id, setImage_Id] = useState("")
-  const [title, setTitle] = useState("")
+  const [triggerSearch, setTriggerSearch] = useState(false); // NEW STATE TO TRIGGER SEARCH ON BUTTON CLICK
 
- const handleClick1 = () => {
+  const handleClick1 = () => {
+    if (!input.trim()) { // TRIM INPUT TO AVOID EMPTY SPACES
+      alert("Please provide valid input to find artwork");
+      return;
+    }
+    setTriggerSearch(true); // TRIGGER SEARCH LOGIC ONLY ON BUTTON CLICK
+  };
 
-    console.log('clicked baby')
-    useEffect(() => { //why isnt the useEffect valid?
-      if (button && input !== "") {
-           //why is my useEffect running twice
-          // bc react wants to be kind and understanding
-          const findArtworkId = async () => {
-            try {
-      
-            const response = await fetch(`https://api.artic.edu/api/v1/artworks/search?q=${input}`, {
-            });
-            if (!response.ok) {
-              console.error('Error response status:', response.status);
-              return;
-            }
-      
-      const data = await response.json();
-            setIiif(data.config.iiif_url)
-            setArtwork_Id(data.data[0].id)
-            setTitle(data.data[0].title)
-            }
-            catch (err) {
-              console.error('Error fetching data:', err);
-            }
-          
-          }
-          findArtworkId()
+  useEffect(() => {
+    if (!triggerSearch) return; // ONLY RUN IF BUTTON WAS CLICKED
+
+    const findArtworkId = async () => {
+      try {
+        const response = await fetch(`https://api.artic.edu/api/v1/artworks/search?q=${input}`); // CHANGED: HARDCODED 'artworks' INSTEAD OF DEPENDING ON BUTTON STATE
+        if (!response.ok) {
+          console.error("Error response status:", response.status);
+          return;
         }
-      }, [])
-      
-      
-      
-          const findImageInfo = async() => { //why am i being provided a different artwork, when i provide the id
-                const response = await fetch (`https://api.artic.edu/api/v1/artworks/${artwork_Id}?fields=id,title,image_id`)
-      
-                if (!response.ok) {
-                  console.error('Error response status:', response.status);
-                  return;
-                }
-      
-              const data = await response.json();
-                console.log(button)
-              setImage_Id(data.data.image_id)
-              console.log(image_Id)
-          }
-          findImageInfo()
-      
-      
-          useEffect(() => {
-            if(image_Id && iiif && artwork_Id) {
-              console.log('image id exists', image_Id)
-            const findImage = async() => { //this is failing.. image_id is undefined
-            const response = await fetch(`${iiif}/${image_Id}/full/843,/0/default.jpg`)
-            if (!response.ok) {
-              console.error('Error response status:', response.status);
-              return;
-            }
-            console.log('image fetched! Yay!')
-            }
-            findImage()
-          }
-          }, [])
-  }
-  // const handleClick2 = () => {
-  //   console.log('clicked baby')
-  //   setButton("images")
-  //   console.log('photo button', button)
-  // }
 
+        const data = await response.json();
+        if (!data.data || data.data.length === 0) { // ADDED: CHECK FOR EMPTY RESULTS
+          console.error("No artwork found.");
+          return;
+        }
+
+        setIiif(data.config.iiif_url); // SET IIIF BASE URL
+        setArtworkId(data.data[0].id); // SET ARTWORK ID FROM SEARCH RESULTS
+        setTitle(data.data[0].title); // SET TITLE
+      } catch (err) {
+        console.error("Error fetching artwork ID:", err); // ERROR LOGGING
+      } finally {
+        setTriggerSearch(false); // RESET TRIGGER TO PREVENT LOOPING
+      }
+    };
+
+    findArtworkId();
+  }, [triggerSearch, input]); // DEPEND ON TRIGGER FLAG AND INPUT — NOT BUTTON STATE
+
+  useEffect(() => {
+    if (!artworkId) return; // GUARD AGAINST EMPTY ID
+
+    const findImageInfo = async () => {
+      try {
+        const response = await fetch(
+          `https://api.artic.edu/api/v1/artworks/${artworkId}?fields=id,title,image_id`
+        ); // CORRECTED: USED HARDCODED 'artworks' INSTEAD OF VARIABLE BUTTON STATE
+
+        if (!response.ok) {
+          console.error("Error response status:", response.status);
+          return;
+        }
+
+        const data = await response.json();
+        if (!data.data?.image_id) { // ADDED: VALIDATION FOR IMAGE_ID
+          console.error("No image_id found in data.");
+          return;
+        }
+
+        setImageId(data.data.image_id); // SET IMAGE ID
+      } catch (err) {
+        console.error("Error fetching image info:", err);
+      }
+    };
+
+    findImageInfo();
+  }, [artworkId]); // RUN WHEN ARTWORK ID IS AVAILABLE
+
+  useEffect(() => {
+    if (!iiif || !imageId) return; // PREVENT IMAGE FETCH UNTIL BOTH VALUES EXIST
+
+    const findImage = async () => {
+      const imageUrl = `${iiif}/${imageId}/full/843,/0/default.jpg`;
+
+      try {
+        const response = await fetch(imageUrl, { method: 'HEAD' }); // CHANGED: VERIFY IMAGE EXISTS WITH HEAD REQUEST
+        if (!response.ok) {
+          console.error("Image not available at:", imageUrl);
+          return;
+        }
+        console.log("Image is valid and fetched:", imageUrl); // CONFIRM IMAGE URL IS VALID
+      } catch (err) {
+        console.error("Error fetching image:", err); // ERROR HANDLING
+      }
+    };
+
+    findImage();
+  }, [iiif, imageId]); // DEPEND ON BOTH IMAGE ID AND BASE URL
 
   return (
     <div className="App">
-
-      {/* header component */}
       <header className="App-header">
         <h1>Chicago Art Institute</h1>
       </header>
 
-      {/* main component for styling and searching*/}
       <main>
-
         <span>Welcome!</span>
-        <form
-          onSubmit={(e) => e.preventDefault()}>
-          {/* Prevent form submission */}
-          <label> Keyword</label>
+        <form onSubmit={(e) => e.preventDefault()}>
+          <label>Keyword</label>
           <input
             type="text"
             name="keyword"
             id="keyword"
             required
-            value={input} // Controlled input value
-            onChange={(e) => setInput(e.target.value)} // Update state on input change
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
         </form>
-        <button
-          onClick={handleClick1}
-        // className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >artwork
-        </button>
-        {/* <button
-          onClick={handleClick2}          // className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >photography</button>
-        make a way to clear */}
+
+        <button onClick={handleClick1}>Search Artwork</button> {/* UPDATED: BUTTON NOW ONLY TRIGGERS SEARCH FLAG */}
 
         <p>Title: {title}</p>
-        <img src={`${iiif}/${image_Id}/full/843,/0/default.jpg`}
-        alt= {title}
-        />
+        {imageId && iiif && ( // RENDER IMAGE ONLY IF BOTH VALUES ARE PRESENT
+          <img
+            src={`${iiif}/${imageId}/full/843,/0/default.jpg`}
+            alt={title}
+          />
+        )}
       </main>
-      <footer>
-        this is the footer
-        go back
-      </footer>
+
+      <footer>this is the footer – go back</footer>
     </div>
   );
 }

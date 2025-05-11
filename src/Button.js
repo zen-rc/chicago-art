@@ -61,7 +61,7 @@ function Button(input, iiif, artwork_Id, image_Id, title) {
     findImageInfo()
 
 
-    useEffect(() => {
+    // useEffect(() => {
         if (image_Id && iiif && artwork_Id) {
             console.log('image id exists', image_Id)
             const findImage = async () => { //this is failing.. image_id is undefined
@@ -74,7 +74,7 @@ function Button(input, iiif, artwork_Id, image_Id, title) {
             }
             findImage()
         }
-    }, [])
+    // }, [])
 }
 
 
