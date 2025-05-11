@@ -47,10 +47,27 @@ However, I cannot execute a useEffect inside of my handleClick function, so I ne
 ---had to fix useEffect using chat, since I couldn't figure out what as wrong
 
 
---make a button that reroutes to another page
+
+--install route library and create routes and components
 -- useState for artist
---If artist does not exist, alert "please search for artwork"
+Use artist state as artist query for artist fetch
+--make a button that reroutes to another page
+Import {useNavigate} from ‘react-router-dom’ //to App
+Create a button, onClick={() => useNavigate(‘/artist’)}
+Add <Routes> to return in app
+Add <Route path=’/artist’ element={<Artist/>}
+--If artist does not exist, alert "please search for artwork first"
 -- artist exist? using artists, fetch artists data
+Return the artist info object, and display info. 
+Pass appropriate props to the component (artist useState)
 -- return a display of artists info. 
---
+
+
+
+
+
+
+
+
+
 
