@@ -6,20 +6,20 @@ function Artwork() {
     const [artworkId, setArtworkId] = useState("");
     const [imageId, setImageId] = useState("");
     const [title, setTitle] = useState("");
-    const [artist, setArtist] = useState("")
+    const [gallery_Id, setGallery_Id] = useState(null)
   
-    const [triggerSearch, setTriggerSearch] = useState(false); // NEW STATE TO TRIGGER SEARCH ON BUTTON CLICK
+    const [triggerArtSearch, setTriggerArtSearch] = useState(false); // NEW STATE TO TRIGGER SEARCH ON BUTTON CLICK
   
     const handleClick1 = () => {
       if (!input.trim()) { // TRIM INPUT TO AVOID EMPTY SPACES
         alert("Please provide valid input to find artwork");
         return;
       }
-      setTriggerSearch(true); // TRIGGER SEARCH LOGIC ONLY ON BUTTON CLICK
+      setTriggerArtSearch(true); // TRIGGER SEARCH LOGIC ONLY ON BUTTON CLICK
     };
   
     useEffect(() => {
-      if (!triggerSearch) return; // ONLY RUN IF BUTTON WAS CLICKED
+      if (!triggerArtSearch) return; // ONLY RUN IF BUTTON WAS CLICKED
   
       const findArtworkId = async () => {
         try {
@@ -34,19 +34,19 @@ function Artwork() {
             console.error("No artwork found.");
             return;
           }
-  
+          console.log(data.data)
           setIiif(data.config.iiif_url); // SET IIIF BASE URL
           setArtworkId(data.data[0].id); // SET ARTWORK ID FROM SEARCH RESULTS
           setTitle(data.data[0].title); // SET TITLE
         } catch (err) {
           console.error("Error fetching artwork ID:", err); // ERROR LOGGING
         } finally {
-          setTriggerSearch(false); // RESET TRIGGER TO PREVENT LOOPING
+          setTriggerArtSearch(false); // RESET TRIGGER TO PREVENT LOOPING
         }
       };
   
       findArtworkId();
-    }, [triggerSearch, input]); // DEPEND ON TRIGGER FLAG AND INPUT — NOT BUTTON STATE
+    }, [triggerArtSearch, input]); // DEPEND ON TRIGGER FLAG AND INPUT — NOT BUTTON STATE
   
     useEffect(() => {
       if (!artworkId) return; // GUARD AGAINST EMPTY ID
@@ -54,8 +54,8 @@ function Artwork() {
       const findImageInfo = async () => {
         try {
           const response = await fetch(
-            `https://api.artic.edu/api/v1/artworks/${artworkId}?fields=id,title,image_id`
-          ); // CORRECTED: USED HARDCODED 'artworks' INSTEAD OF VARIABLE BUTTON STATE
+            `https://api.artic.edu/api/v1/artworks/${artworkId}?fields=id,title,image_id,gallery_id`
+          );
   
           if (!response.ok) {
             console.error("Error response status:", response.status);
@@ -67,7 +67,7 @@ function Artwork() {
             console.error("No image_id found in data.");
             return;
           }
-  
+          setGallery_Id(data.data.gallery_id)
           setImageId(data.data.image_id); // SET IMAGE ID
         } catch (err) {
           console.error("Error fetching image info:", err);
@@ -123,8 +123,8 @@ function Artwork() {
               alt={title}
             />
           )}
-          <p>Want to learn more about the artist?</p>
-          <button >Click here</button>
+          <p>Want to see it in person? Learn more by</p>
+          <button >Clicking here</button>
         </main>
         </div>
     )
