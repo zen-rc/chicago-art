@@ -49,6 +49,7 @@ However, I cannot execute a useEffect inside of my handleClick function, so I ne
 
 
 --install route library and create routes and components
+
 -- useState for artist
 Use artist state as artist query for artist fetch
 --make a button that reroutes to another page
