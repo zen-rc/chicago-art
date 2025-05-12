@@ -1,7 +1,7 @@
 function Artwork({input, setInput, title, handleClick, imageId, iiif}) {
     return (
         <div>
-            <p>This is the artwork search page</p>
+            <p>Artwork search page</p>
             <main>
           <span>Welcome!</span>
          
@@ -25,8 +25,6 @@ function Artwork({input, setInput, title, handleClick, imageId, iiif}) {
               alt={title}
             />
           )}
-          <p>Want to see it in person? Learn more by</p>
-          <button >Clicking here</button>
         </main>
         </div>
     )

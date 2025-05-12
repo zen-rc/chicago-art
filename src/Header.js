@@ -2,7 +2,7 @@ function Header() {
 
     return (
         <header className="App-header">
-        <h1>Chicago Art Institute</h1>
+        <h1>Chicago Art Institute API</h1>
       </header>
     )
 }
